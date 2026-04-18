@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>السلة</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{margin:0;font-family:Arial;background:#eef2f7;}
+
+header{
+  display:flex;
+  justify-content:space-between;
+  padding:15px;
+  background:white;
+}
+
+.back{
+  cursor:pointer;
+  color:#2563eb;
+}
+
+.container{padding:10px;}
+
+.card{
+  background:white;
+  padding:10px;
+  border-radius:12px;
+  margin-bottom:10px;
+}
+
+.controls{
+  display:flex;
+  justify-content:space-between;
+  margin-top:10px;
+}
+
+button{
+  border:none;
+  padding:6px 10px;
+  border-radius:8px;
+}
+
+.plus{background:#2563eb;color:white;}
+.minus{background:#9ca3af;color:white;}
+
+.total{
+  text-align:center;
+  margin-top:10px;
+  font-weight:bold;
+}
+
+.order{
+  background:green;
+  color:white;
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div onclick="goBack()" class="back">⬅ رجوع</div>
+  <div>السلة</div>
+</header>
+
+<div class="container" id="cart"></div>
+
+<div class="container">
+  <div class="total">الإجمالي: <span id="total">0</span> جنيه</div>
+  <button class="order" onclick="sendOrder()">اطلب واتساب</button>
+</div>
+
+<script>
+let cart = JSON.parse(localStorage.getItem("cart")) || {};
+
+function render(){
+  let html="";
+  let total=0;
+
+  for(let item in cart){
+    let p=cart[item].price;
+    let q=cart[item].qty;
+
+    total+=p*q;
+
+    html+=`
+    <div class="card">
+      <b>${item}</b><br>
+      ${p} جنيه × ${q}
+
+      <div class="controls">
+        <button class="plus" onclick="change('${item}',1)">+</button>
+        <button class="minus" onclick="change('${item}',-1)">-</button>
+      </div>
+    </div>
+    `;
+  }
+
+  document.getElementById("cart").innerHTML=html;
+  document.getElementById("total").innerText=total;
+}
+
+/* تعديل الكمية */
+function change(name,val){
+  cart[name].qty+=val;
+
+  if(cart[name].qty<=0){
+    delete cart[name];
+  }
+
+  localStorage.setItem("cart",JSON.stringify(cart));
+  render();
+}
+
+/* رجوع */
+function goBack(){
+  window.location.href = "index.html";
+}
+
+/* واتساب */
+function sendOrder(){
+  let msg="طلب:%0A";
+  let total=0;
+
+  for(let item in cart){
+    msg+=item+" × "+cart[item].qty+"%0A";
+    total+=cart[item].price*cart[item].qty;
+  }
+
+  msg+="%0Aالإجمالي: "+total+" جنيه";
+
+  window.open("https://wa.me/201551489292?text="+msg);
+}
+
+render();
+</script>
+
+</body>
+</html>
